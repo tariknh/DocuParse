@@ -1,9 +1,9 @@
 "use client";
 
+import ReviewCard from "@/components/ReviewCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Weather } from "@/components/weather";
 import { useChat } from "ai/react";
 import { useState } from "react";
 
@@ -22,10 +22,11 @@ export default function Page() {
     });
     setInputAnswer("");
   };
+  console.log(messages);
 
   return (
     <div>
-      {messages.map((message) => (
+      {/* {messages.map((message) => (
         <div key={message.id}>
           {message.role === "user" ? "User: " : "AI: "}
           {message.content}
@@ -54,7 +55,24 @@ export default function Page() {
             })}
           </div>
         </div>
-      ))}
+      ))} */}
+      {messages.map((message) => {
+        if (message.role === "function") {
+          const { name, content } = message;
+          const { keyTopics, score, matchedTopics, feedback } =
+            JSON.parse(content);
+
+          return (
+            <ReviewCard
+              key={message.id}
+              keyTopics={keyTopics}
+              score={score}
+              matchedTopics={matchedTopics}
+              feedback={feedback}
+            />
+          );
+        }
+      })}
 
       <form onSubmit={handleCustomSubmit}>
         <div className="flex flex-col gap-2 p-8 place-content-center h-full">
