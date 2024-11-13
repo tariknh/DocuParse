@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { tool as createTool, generateText } from "ai";
+import { tool as createTool, generateObject, generateText } from "ai";
 import { z } from "zod";
 
 export const weatherTool = createTool({
@@ -25,12 +25,19 @@ const extractKeyTopics = async (question: string) => {
   return keyTopics;
 };
 
-const rateAnswer = (answer: string, keyTopics: string[]) => {
-  const matchedTopics = keyTopics.filter((topic) =>
-    answer.toLowerCase().includes(topic.toLowerCase())
-  );
-  const score = Math.round((matchedTopics.length / keyTopics.length) * 100);
-  return { score, matchedTopics };
+const rateAnswer = async (answer: string, keyTopics: string[]) => {
+  const { object } = await generateObject({
+    model: openai("gpt-4o"),
+    schema: z.object({
+      score: z.number(),
+      coveredTopics: z.array(
+        z.object({ topic: z.string(), coverScore: z.number().lte(3) })
+      ),
+    }),
+    prompt: `Based on the following topics: ${keyTopics}, return a score from 0-100 and the topics that were covered from 0-3 given the following explanation: ${answer} `,
+  });
+
+  return { object };
 };
 
 export const analyzeAnswerTool = createTool({
@@ -42,21 +49,20 @@ export const analyzeAnswerTool = createTool({
   }),
   execute: async ({ question, answer }) => {
     const keyTopics = await extractKeyTopics(question);
-    const { score, matchedTopics } = await rateAnswer(answer, keyTopics);
-    console.log(
-      keyTopics,
-      "keyTopics",
-      score,
-      "score",
-      matchedTopics,
-      "matchedtopics"
-    );
+    const { object } = await rateAnswer(answer, keyTopics);
+    console.log(object.score, object.coveredTopics);
+    // console.log(
+    //   keyTopics,
+    //   "keyTopics",
+    //   score,
+    //   "score",
+    //   matchedTopics,
+    //   "matchedtopics"
+    // );
 
     return {
       keyTopics,
-      score,
-      matchedTopics,
-      feedback: `Your answer covered ${matchedTopics.length} out of ${keyTopics.length} key topics.`,
+      feedback: `Your answer covered ${object.score} percent `,
     };
   },
 });

@@ -57,6 +57,7 @@ export default function Page() {
         </div>
       ))} */}
       {messages.map((message) => {
+        console.log(message, "message!");
         if (message.role === "function") {
           const { name, content } = message;
           const { keyTopics, score, matchedTopics, feedback } =
@@ -88,7 +89,12 @@ export default function Page() {
             onChange={(e) => setInputAnswer(e.target.value)}
             placeholder="Explain it!"
           />
-          <Button type="submit">How is my explanation?</Button>
+          <Button className="bg-foreground" type="submit">
+            How is my explanation?
+          </Button>
+        </div>
+        <div className="p-8">
+          <ReviewCard />
         </div>
       </form>
     </div>
