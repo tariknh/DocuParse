@@ -16,7 +16,7 @@ export const weatherTool = createTool({
 const extractKeyTopics = async (question: string) => {
   const response = await generateText({
     model: openai("gpt-4o"),
-    prompt: `Identify the key topics for the following question: "${question}". Return a list of essential topics related to this question.`,
+    prompt: `Identify the key topics for the following question: "${question}". Return a list of essential topics related to this question. Limit the topics to strongly relate to the question.`,
   });
   const keyTopics = response.text
     .trim()
@@ -34,7 +34,14 @@ const rateAnswer = async (answer: string, keyTopics: string[]) => {
         z.object({ topic: z.string(), coverScore: z.number().lte(3) })
       ),
     }),
-    prompt: `Based on the following topics: ${keyTopics}, return a score from 0-100 and the topics that were covered from 0-3 given the following explanation: ${answer} `,
+    prompt: `Based on the provided key topics: ${keyTopics}, evaluate the quality of the given academic explanation: ${answer}. Provide the following:
+
+An overall score (0-100) reflecting how well the explanation aligns with the key topics and its overall academic quality. The topics that are not so related to the question, will not affect the score too much. 
+A topic-by-topic evaluation, assigning a coverage score (0-3) for each topic from ${keyTopics}, where:
+0 = Not addressed at all,
+1 = Poorly addressed,
+2 = Adequately addressed, and
+3 = Thoroughly and clearly addressed.`,
   });
 
   return { object };
@@ -61,8 +68,7 @@ export const analyzeAnswerTool = createTool({
     // );
 
     return {
-      keyTopics,
-      feedback: `Your answer covered ${object.score} percent `,
+      object
     };
   },
 });

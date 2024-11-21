@@ -14,7 +14,7 @@ export default function Page() {
 
   const handleCustomSubmit = (event: any) => {
     event.preventDefault();
-    console.log(event, "inside custom submit");
+    
     handleSubmit(event, {
       body: {
         inputAnswer: inputAnswer,
@@ -22,42 +22,15 @@ export default function Page() {
     });
     setInputAnswer("");
   };
-  console.log(messages);
+  console.log(messages, "messages")
+  
 
   return (
-    <div>
-      {/* {messages.map((message) => (
-        <div key={message.id}>
-          {message.role === "user" ? "User: " : "AI: "}
-          {message.content}
-          <div>
-            {message.toolInvocations?.map((toolInvocation) => {
-              const { toolName, toolCallId, state } = toolInvocation;
+    <div className="text-white">
+     
+      
+      {/* {messages.map((message) => {
 
-              if (state === "result") {
-                if (toolName === "displayWeather") {
-                  const { result } = toolInvocation;
-                  return (
-                    <div key={toolCallId}>
-                      <Weather {...result} />
-                    </div>
-                  );
-                }
-              } else {
-                return (
-                  <div key={toolCallId}>
-                    {toolName === "displayWeather" ? (
-                      <div>Loading weather...</div>
-                    ) : null}
-                  </div>
-                );
-              }
-            })}
-          </div>
-        </div>
-      ))} */}
-      {messages.map((message) => {
-        console.log(message, "message!");
         if (message.role === "function") {
           const { name, content } = message;
           const { keyTopics, score, matchedTopics, feedback } =
@@ -73,18 +46,18 @@ export default function Page() {
             />
           );
         }
-      })}
+      })} */}
 
       <form onSubmit={handleCustomSubmit}>
         <div className="flex flex-col gap-2 p-8 place-content-center h-full">
           <Input
-            className="bg-secondary"
+            className="bg-secondary text-primary"
             value={input}
             onChange={handleInputChange}
             placeholder="Type what you want to explain..."
           />
           <Textarea
-            className="bg-secondary"
+            className="bg-secondary text-primary"
             value={inputAnswer}
             onChange={(e) => setInputAnswer(e.target.value)}
             placeholder="Explain it!"
@@ -94,7 +67,44 @@ export default function Page() {
           </Button>
         </div>
         <div className="p-8">
-          <ReviewCard />
+          {/* <ReviewCard /> */}
+        </div>
+        <div className="p-8">
+        {messages.map((message) => (
+        <div id={message.id} key={message.id}>
+          {/* {message.role === "user" ? "User: " : "AI: "}
+          {message.content} */}
+          <div>
+            {message.toolInvocations?.map((toolInvocation) => {
+              const { toolName, toolCallId, state } = toolInvocation;
+
+              if (state === "result") {
+                if (toolName) {
+                  const { result, args } = toolInvocation;
+                  return (
+                    <div key={toolCallId}>
+                      
+                      <ReviewCard
+                        {...result}
+                        {...args}
+                        
+                      />
+                    </div>
+                  );
+                }
+              } else {
+                return (
+                  <div key={toolCallId}>
+                    {toolName ? (
+                      <div>Loading answer...</div>
+                    ) : null}
+                  </div>
+                );
+              }
+            })}
+          </div>
+        </div>
+      ))}
         </div>
       </form>
     </div>
