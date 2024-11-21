@@ -25,7 +25,19 @@ const extractKeyTopics = async (question: string) => {
   return keyTopics;
 };
 
-const rateAnswer = async (answer: string, keyTopics: string[]) => {
+const extractKeyTopicsObject = async (question: string) => {
+  const { object } = await generateObject({
+    model: openai("gpt-4o"),
+    schema: z.object({
+      topics: z.array(z.object({ topic: z.string() })),
+    }),
+    prompt: `Identify the key topics for the following question: "${question}". Return a list of essential topics related to this question. Limit the topics to strongly relate to the question.`,
+  });
+
+  return { object };
+};
+
+const rateAnswer = async (answer: string, keyTopics: Object[]) => {
   const { object } = await generateObject({
     model: openai("gpt-4o"),
     schema: z.object({
@@ -55,20 +67,14 @@ export const analyzeAnswerTool = createTool({
     answer: z.string(),
   }),
   execute: async ({ question, answer }) => {
-    const keyTopics = await extractKeyTopics(question);
-    const { object } = await rateAnswer(answer, keyTopics);
-    console.log(object.score, object.coveredTopics);
-    // console.log(
-    //   keyTopics,
-    //   "keyTopics",
-    //   score,
-    //   "score",
-    //   matchedTopics,
-    //   "matchedtopics"
-    // );
+    const { object: keyTopics } = await extractKeyTopicsObject(question);
+    console.log(keyTopics, "keyTopics");
+    const { object: answerRating } = await rateAnswer(answer, keyTopics.topics);
+    console.log(answerRating, "answerRating");
+    console.log(answerRating.score, answerRating.coveredTopics);
 
     return {
-      object
+      answerRating,
     };
   },
 });

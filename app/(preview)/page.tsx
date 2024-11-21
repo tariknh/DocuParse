@@ -4,6 +4,7 @@ import ReviewCard from "@/components/ReviewCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { ToolInvocation } from "ai";
 import { useChat } from "ai/react";
 import { useState } from "react";
 
@@ -14,7 +15,7 @@ export default function Page() {
 
   const handleCustomSubmit = (event: any) => {
     event.preventDefault();
-    
+
     handleSubmit(event, {
       body: {
         inputAnswer: inputAnswer,
@@ -22,13 +23,10 @@ export default function Page() {
     });
     setInputAnswer("");
   };
-  console.log(messages, "messages")
-  
+  console.log(messages, "messages");
 
   return (
     <div className="text-white">
-     
-      
       {/* {messages.map((message) => {
 
         if (message.role === "function") {
@@ -66,45 +64,43 @@ export default function Page() {
             How is my explanation?
           </Button>
         </div>
+        <div className="p-8">{/* <ReviewCard /> */}</div>
         <div className="p-8">
-          {/* <ReviewCard /> */}
-        </div>
-        <div className="p-8">
-        {messages.map((message) => (
-        <div id={message.id} key={message.id}>
-          {/* {message.role === "user" ? "User: " : "AI: "}
+          {messages.map((message) => (
+            <div id={message.id} key={message.id}>
+              {/* {message.role === "user" ? "User: " : "AI: "}
           {message.content} */}
-          <div>
-            {message.toolInvocations?.map((toolInvocation) => {
-              const { toolName, toolCallId, state } = toolInvocation;
+              <div>
+                {message.toolInvocations?.map(
+                  (toolInvocation: ToolInvocation) => {
+                    const { toolName, toolCallId, state } = toolInvocation;
 
-              if (state === "result") {
-                if (toolName) {
-                  const { result, args } = toolInvocation;
-                  return (
-                    <div key={toolCallId}>
-                      
-                      <ReviewCard
-                        {...result}
-                        {...args}
-                        
-                      />
-                    </div>
-                  );
-                }
-              } else {
-                return (
-                  <div key={toolCallId}>
-                    {toolName ? (
-                      <div>Loading answer...</div>
-                    ) : null}
-                  </div>
-                );
-              }
-            })}
-          </div>
-        </div>
-      ))}
+                    if (state === "result") {
+                      if (toolName) {
+                        const { result, args } = toolInvocation;
+                        console.log("TOOLINVOCATION", result, args.question);
+                        return (
+                          <div key={toolCallId}>
+                            <ReviewCard
+                              {...result}
+                              {...args}
+                              question={args.question}
+                            />
+                          </div>
+                        );
+                      }
+                    } else {
+                      return (
+                        <div key={toolCallId}>
+                          {toolName ? <div>Loading answer...</div> : null}
+                        </div>
+                      );
+                    }
+                  }
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </form>
     </div>

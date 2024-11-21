@@ -1,5 +1,4 @@
 import { Circle } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
 type RatingProps = {
   keyTopics?: string[];
   score?: any;
@@ -7,22 +6,22 @@ type RatingProps = {
   matchedTopics?: string[];
   feedback?: string;
   object: any;
-  question?:any;
-  answer?:any;
+  question?: any;
+  answer?: any;
+  answerRating: answerRatingProps;
+};
+type answerRatingProps = {
+  score: Number;
+  coveredTopics: Object[];
 };
 const ReviewCard = ({
-  object,
+  answer,
+  question,
+  answerRating,
   ...props
 }: RatingProps) => {
-  const {coveredTopics, score } = object
-  const {answer, question } = props
-  console.log(props, "props")
-  
-  
-  
+  console.log(question, "question");
 
-  //console.log(keyTopics, score, matchedTopics, feedback);
-  
   return (
     <div className="text-secondary text-left flex flex-col gap-2">
       <h2 className="text-3xl font-bold ">{question}</h2>
@@ -30,14 +29,29 @@ const ReviewCard = ({
       <h2 className="text-sm opacity-65">
         Rating is based on the following topics:
       </h2>
-      {coveredTopics?.map((item:any,index:any)=>(
-        <div key={index} className="bg-foreground place-items-center justify-between flex p-4 rounded-xl">
-        <p className="w-2/4">{item.topic}</p>
-        <Circle size={32} color={item.coverScore == 1 ? "#58fe63" : item.coverScore == 2 ? "#f3fe58" : "#fe5858"} weight="fill" />
-      </div>
+      {answerRating.coveredTopics?.map((item: any, index: any) => (
+        <div
+          key={index}
+          className="bg-foreground place-items-center justify-between flex p-4 rounded-xl"
+        >
+          <p className="w-2/4">{item.topic}</p>
+          <Circle
+            size={32}
+            color={
+              item.coverScore == 3
+                ? "#58fe63"
+                : item.coverScore == 2
+                ? "#f3fe58"
+                : item.coverScore == 1
+                ? "#fe5858"
+                : "#fe5858"
+            }
+            weight="fill"
+          />
+        </div>
       ))}
       <h2 className="text-3xl font-bold ">Your overall score:</h2>
-      <h2 className="text-6xl">{score}%</h2>
+      <h2 className="text-6xl">{`${answerRating.score}%`}</h2>
     </div>
   );
 };

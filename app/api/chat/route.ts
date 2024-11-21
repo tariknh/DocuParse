@@ -11,9 +11,10 @@ export async function POST(request: Request) {
     model: openai("gpt-4o"),
     system:
       "You are a professional university teacher with many years of experience.",
-    prompt: `Based on this question: ${messages} I want you to find the most important topics to cover regarding it, and then output them. Afterwards, i want you to review the explanation, with a score percentage from 0-100% given here: ${inputAnswer} You shall also output a color coding on the degree of explanation of each important topic. `,
+    prompt: `Based on this question: ${messages} I want you to find the most important topics to cover regarding it, and then output them. Afterwards, i want you to review the explanation, with a score percentage from 0-100% given here: ${inputAnswer}`,
     tools,
     toolChoice: "required",
+    maxSteps: 1,
   });
 
   console.log(result.fullStream);
